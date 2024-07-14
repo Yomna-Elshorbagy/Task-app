@@ -3,7 +3,7 @@ import userModel from "../../../database/model/user.model.js";
 import { AppError, catchAsyncError } from "../../utils/catchError.js";
 
 export const addCategory = catchAsyncError(async (req, res, next) => {
-  let { name, user } = req.body;
+  const { name, user } = req.body;
   let FoundUser = await userModel.findById(user);
   if (!FoundUser) return next(new AppError("users doesnot exisit", 404));
 
@@ -18,15 +18,13 @@ export const addCategory = catchAsyncError(async (req, res, next) => {
 
 export const getAllCategorys = catchAsyncError(async (req, res, next) => {
   let categorys = await categoryModel.find();
-  if (!categorys)
-    return next(new AppError("there is No categorys", 404));
+  if (!categorys) return next(new AppError("there is No categorys", 404));
   res.status(200).json({ message: "categorys are ", categorys });
 });
 
 export const getAllUserCategorys = catchAsyncError(async (req, res, next) => {
   let categorys = await categoryModel.find({ user: req.user.userId });
-  if (!categorys)
-    return next(new AppError("there is No categorys", 404));
+  if (!categorys) return next(new AppError("there is No categorys", 404));
   res.status(200).json({ message: "categorys are ", categorys });
 });
 
@@ -39,10 +37,10 @@ export const getById = catchAsyncError(async (req, res, next) => {
 
 export const updateCategory = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const { name, user } =req.body;
+  const { name, user } = req.body;
   let category = await categoryModel.findById(id);
   if (!category) return next(new AppError("category doesnot exisit", 404));
-  const updatedCat= await categoryModel.findByIdAndUpdate(
+  const updatedCat = await categoryModel.findByIdAndUpdate(
     category._id,
     {
       name,
@@ -56,8 +54,8 @@ export const updateCategory = catchAsyncError(async (req, res, next) => {
 });
 // if user updated from token => auth
 export const updateCategory2 = catchAsyncError(async (req, res, next) => {
-const { name } = req.body;
-  const category = await categoryModel.findOneAndUpdate(
+  const { name } = req.body;
+  let category = await categoryModel.findOneAndUpdate(
     { _id: req.params.id, user: req.user.userId },
     { name },
     { new: true }
@@ -65,12 +63,11 @@ const { name } = req.body;
   if (!category) {
     return next(new AppError("Category not found", 404));
   }
-  res.json({message :"upated",category});
+  res.json({ message: "upated", category });
 });
 
-
 export const deleteCategorys = catchAsyncError(async (req, res, next) => {
-  let { id } = req.params;
+  const { id } = req.params;
   let category = await categoryModel.findById(id);
   if (!category) {
     return next(new AppError("category doesnot exisit", 404));
@@ -81,10 +78,10 @@ export const deleteCategorys = catchAsyncError(async (req, res, next) => {
     .json({ message: "category deleted sucessfully..", deletedCategory });
 });
 
-// filter category by name 
+// filter category by name
 export const getByName = catchAsyncError(async (req, res, next) => {
   const { name } = req.query;
-  const filter = name ? { name: { $regex: new RegExp(name, 'i') } } : {};
+  const filter = name ? { name: { $regex: new RegExp(name, "i") } } : {};
   let categorys = await categoryModel.find(filter);
 
   if (!categorys || categorys.length === 0) {
@@ -93,12 +90,15 @@ export const getByName = catchAsyncError(async (req, res, next) => {
   res.status(200).json({ message: "Categories", categorys });
 });
 
-//Sort 
+//Sort
 export const getSortCategorys = catchAsyncError(async (req, res, next) => {
   const { order } = req.query;
-  const sortOrder = order === 'desc' ? -1 : 1; // Default is ascending
+  const sortOrder = order === "desc" ? -1 : 1; // Default is ascending
 
-  let categories = await categoryModel.find().collation({ locale: 'en', strength: 2 }).sort({ name: sortOrder });
+  let categories = await categoryModel
+    .find()
+    .collation({ locale: "en", strength: 2 })
+    .sort({ name: sortOrder });
 
   if (!categories || categories.length === 0) {
     return next(new AppError("No categories found", 404));
@@ -107,26 +107,28 @@ export const getSortCategorys = catchAsyncError(async (req, res, next) => {
 });
 
 // Get paginated categories
-export const getPaginatedCategories = catchAsyncError(async (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
+export const getPaginatedCategories = catchAsyncError(
+  async (req, res, next) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-  let categorys = await categoryModel.find().skip(skip).limit(limit);
-  if (!categorys || categorys.length === 0)
-    return next(new AppError("No categories found", 404));
+    let categorys = await categoryModel.find().skip(skip).limit(limit);
+    if (!categorys || categorys.length === 0)
+      return next(new AppError("No categories found", 404));
 
-  const totalCategories = await categoryModel.countDocuments();
-  const totalPages = Math.ceil(totalCategories / limit);
+    const totalCategories = await categoryModel.countDocuments();
+    const totalPages = Math.ceil(totalCategories / limit);
 
-  res.status(200).json({
-    message: "Categories",
-    categorys,
-    pagination: {
-      totalCategories,
-      totalPages,
-      currentPage: page,
-      pageSize: limit,
-    },
-  });
-});
+    res.status(200).json({
+      message: "Categories",
+      categorys,
+      pagination: {
+        totalCategories,
+        totalPages,
+        currentPage: page,
+        pageSize: limit,
+      },
+    });
+  }
+);

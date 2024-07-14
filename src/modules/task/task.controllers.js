@@ -8,7 +8,7 @@ export const addTask = catchAsyncError(async (req, res, next) => {
 
   let FoundUser = await userModel.findById(user);
   if (!FoundUser) return next(new AppError("users doesnot exisit", 404));
-  
+
   let foundCategory = await categoryModel.findById(category);
   if (!foundCategory) return next(new AppError("category doesnot exisit", 404));
 
@@ -26,9 +26,23 @@ export const addTask = catchAsyncError(async (req, res, next) => {
   res.status(201).json({ message: "task added sucessfully ", task });
 });
 
+//get all tasks public or private
 export const getAllTasks = catchAsyncError(async (req, res, next) => {
   let tasks = await taskModel.find();
   if (!tasks) return next(new AppError("there is No tasks", 404));
+  res.status(200).json({ message: "tasks are ", tasks });
+});
+
+//Tasks of the creator.
+export const getTasks = catchAsyncError(async (req, res, next) => {
+  let tasks = await taskModel.find({ user: req.user.userId });
+  if (!tasks) return next(new AppError("No tasks shared for this user ", 404));
+  res.status(200).json({ message: "tasks are ", tasks });
+});
+//get public tasks only
+export const getPublicTasks = catchAsyncError(async (req, res, next) => {
+  let tasks = await taskModel.find({ shared: "public" });
+  if (!tasks) return next(new AppError("No tasks shared for this user ", 404));
   res.status(200).json({ message: "tasks are ", tasks });
 });
 export const getById = catchAsyncError(async (req, res, next) => {
@@ -93,33 +107,32 @@ export const getPaginatedTask = catchAsyncError(async (req, res, next) => {
   });
 });
 
-
 // filter shared
 export const getBySharedOption = catchAsyncError(async (req, res, next) => {
-    const { shared } = req.query;
-    const filter = shared ? { shared: shared.toLowerCase() } : {};
-    
-    let tasks = await taskModel.find(filter);
-    
-    if (!tasks || tasks.length === 0) {
-      return next(new AppError("No tasks found", 404));
-    }
-  
-    res.status(200).json({ message: "Tasks retrieved successfully", tasks });
-  });
-  
-  //Sort task
-  export const getSortTasks = catchAsyncError(async (req, res, next) => {
-    const { order } = req.query;
-    const sortOrder = order === "desc" ? -1 : 1; 
-  
-    let tasks = await taskModel
-      .find()
-      .collation({ locale: "en", strength: 2 })
-      .sort({ shared: sortOrder });
-  
-    if (!tasks || tasks.length === 0) {
-      return next(new AppError("No tasks found", 404));
-    }
-    res.status(200).json({ message: "tasks", tasks });
-  });
+  const { shared } = req.query;
+  const filter = shared ? { shared: shared.toLowerCase() } : {};
+
+  let tasks = await taskModel.find(filter);
+
+  if (!tasks || tasks.length === 0) {
+    return next(new AppError("No tasks found", 404));
+  }
+
+  res.status(200).json({ message: "Tasks retrieved successfully", tasks });
+});
+
+//Sort task
+export const getSortTasks = catchAsyncError(async (req, res, next) => {
+  const { order } = req.query;
+  const sortOrder = order === "desc" ? -1 : 1;
+
+  let tasks = await taskModel
+    .find()
+    .collation({ locale: "en", strength: 2 })
+    .sort({ shared: sortOrder });
+
+  if (!tasks || tasks.length === 0) {
+    return next(new AppError("No tasks found", 404));
+  }
+  res.status(200).json({ message: "tasks", tasks });
+});
