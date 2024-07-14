@@ -6,6 +6,7 @@ let userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      minlength: [3, "last name must be at least 3 characters long"],
       maxlength: [50, "name shoud not exceed 50 character"],
     },
     email: {
@@ -13,6 +14,7 @@ let userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+      match :/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
     },
     password: {
       type: String,

@@ -6,8 +6,8 @@ import { addTaskVal, updateTaskVal } from "./task.validation.js";
 
 const taskRouter = Router();
 // without auth:
-taskRouter.get('/',taskControllers.getAllTasks)
-taskRouter.get('/public',taskControllers.getPublicTasks)
+taskRouter.get('/',taskControllers.getAllTasks);
+taskRouter.get('/public',taskControllers.getPublicTasks);
 taskRouter.get('/sort', taskControllers.getSortTasks);
 taskRouter.get('/filter', taskControllers.getBySharedOption);
 taskRouter.get('/paginate', taskControllers.getPaginatedTask);
