@@ -4,13 +4,14 @@ import { AppError, catchAsyncError } from "../../utils/catchError.js";
 
 export const addCategory = catchAsyncError(async (req, res, next) => {
   const { name, user } = req.body;
+  //** if i want to get user from body not token: ** 
   let FoundUser = await userModel.findById(user);
-  if (!FoundUser) return next(new AppError("users doesnot exisit", 404));
+  if (!FoundUser) return next(new AppError("user doesnot exisit", 404));
 
   let category = await categoryModel.insertMany({
     name,
-    //user: FoundUser._id
-    user: req.user.userId,
+    //user: FoundUser._id  //from body
+    user: req.user.userId, //from token
   });
 
   res.status(201).json({ message: "category added sucessfully ", category });

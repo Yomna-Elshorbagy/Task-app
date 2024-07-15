@@ -12,7 +12,7 @@ categoryRouter.post('/addCat',verifyToken,validate(addCatVal) ,catControllers.ad
 categoryRouter.get('/', catControllers.getAllCategorys)
 categoryRouter.get('/paginate', catControllers.getPaginatedCategories)
 categoryRouter.get('/sort', catControllers.getSortCategorys)
-categoryRouter.get('/Usercat', verifyToken,catControllers.getAllUserCategorys)
+categoryRouter.get('/userCat', verifyToken,catControllers.getAllUserCategorys)
 categoryRouter.get('/filter', catControllers.getByName)
 
 categoryRouter.route('/:id')
